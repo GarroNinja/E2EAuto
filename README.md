@@ -49,9 +49,9 @@ node automation.js lenskart signin sunglasses
 
 **Lenskart - Sign up with multi-word search:**
 ```bash
-node automation.js lenskart signup prescription glasses
+node automation.js lenskart signup eyeglasses
 # OR
-node automation.js lenskart signup "prescription glasses"
+node automation.js lenskart signup "eyeglasses"
 ```
 
 ## Before You Test, Make sure to update the config.js file with your own data
@@ -67,7 +67,7 @@ node automation.js lenskart signup "prescription glasses"
     signupData: {
       phone: '1234567890',
       name: 'Jane Doe',
-      email: 'janedoe@gmail.com',
+      email: 'janedoe@gmail.com', // will be used for login as well
     },
 ```
 
@@ -79,7 +79,7 @@ node automation.js lenskart signup "prescription glasses"
       phone: '1234567890',
       firstName: 'Jane',
       lastName: 'Doe',
-      email: 'janedoe@gmail.com',
+      email: 'janedoe@gmail.com',   // will be used for login as well
       password: 'YourPassword123#',
     },
 ```
@@ -104,6 +104,7 @@ node automation.js lenskart signup "prescription glasses"
 - Searches for products (e.g., sunglasses, eyeglasses)
 - Clicks first product (opens in new tab)
 - Clicks "BUY NOW" button
+- Lens Type and Lens Package customization if compulsory (handled dynamically)
 - Proceeds to checkout page
 
 #### Swiggy
@@ -111,7 +112,7 @@ node automation.js lenskart signup "prescription glasses"
 - Navigates to Search page
 - Searches for food items (e.g., pizza, burger)
 - Clicks "ADD" on first item
-- Handles multi-step customization modal
+- Handles multi-step customization modal (handled dynamically)
 - Selects default options and adds to cart
 
 ## Configuration
