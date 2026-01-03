@@ -1,0 +1,24 @@
+{
+  "name": "e2e-auto",
+  "version": "1.0.0",
+  "description": "Generic e-commerce automation script for Lenskart and Swiggy",
+  "main": "automation.js",
+  "scripts": {
+    "lenskart": "node automation.js lenskart sunglasses",
+    "swiggy": "node automation.js swiggy pizza",
+    "test": "node automation.js"
+  },
+  "keywords": [
+    "puppeteer",
+    "automation",
+    "e2e",
+    "testing"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^24.0.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}
