@@ -47,11 +47,13 @@ node automation.js swiggy "ice cream"
 node automation.js lenskart signin sunglasses
 ```
 
-**Lenskart - Sign up with multi-word search:**
+**Lenskart - Sign in/Sign up with multi-word search:**
 ```bash
-node automation.js lenskart signup eyeglasses
+node automation.js lenskart signin eyeglasses for men
+node automation.js lenskart signup eyeglasses for men
 # OR
-node automation.js lenskart signup "eyeglasses"
+node automation.js lenskart signin "eyeglasses for men"
+node automation.js lenskart signup "eyeglasses for men"
 ```
 
 ## Before You Test, Make sure to update the config.js file with your own data
