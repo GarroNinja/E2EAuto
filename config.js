@@ -1,4 +1,6 @@
-// Site-specific configuration for Lenskart and Swiggy automation
+/**
+ * Site-specific configuration for Lenskart and Swiggy automation
+ */
 
 const config = {
   lenskart: {
@@ -57,11 +59,11 @@ const config = {
 
     // Signup/Signin data
     signupData: {
-      phone: 'xxxxxxxxxx',
-      firstName: 'R******',
-      lastName: 'A******',
-      email: 'youremail@gmail.com',
-      password: '***********',
+      phone: '7760809118',
+      firstName: 'Rithvik',
+      lastName: 'Allada',
+      email: 'rithvik25allada@gmail.com',
+      password: 'YourPassword123#',
     },
   },
 
@@ -125,9 +127,9 @@ const config = {
 
     // Signup/Signin data
     signupData: {
-      phone: '**********',
-      name: 'R******* *',
-      email: 'youremail@gmail.com',
+      phone: '9849397113',
+      name: 'Rithvik A',
+      email: 'rithvik25allada@gmail.com',
     },
   },
 };

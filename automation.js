@@ -1609,10 +1609,11 @@ class EcommerceAutomation {
         console.log('  node automation.js lenskart <authMode> <searchTerm>');
         console.log('    <authMode>: signin | signup (optional; default: auto)');
         console.log('\nExamples:');
-        console.log('  node automation.js lenskart sunglasses');
-        console.log('  node automation.js lenskart signin sunglass');
-        console.log('  node automation.js lenskart signup sunglass');
-        console.log('  node automation.js swiggy pizza\n');
+        console.log('  node automation.js swiggy pizza');
+        console.log('  node automation.js swiggy ice cream');
+        console.log('  node automation.js swiggy "ice cream"');
+        console.log('  node automation.js lenskart signin sunglasses');
+        console.log('  node automation.js lenskart signup prescription glasses\n');
         process.exit(1);
     }
 
@@ -1622,9 +1623,9 @@ class EcommerceAutomation {
 
     if (site === 'lenskart' && args.length >= 3 && /^(signin|signup)$/i.test(args[1])) {
         authMode = args[1].toLowerCase();
-        searchTerm = args[2];
+        searchTerm = args.slice(2).join(' '); // Join all remaining args for multi-word search
     } else {
-        searchTerm = args[1];
+        searchTerm = args.slice(1).join(' '); // Join all remaining args for multi-word search
     }
 
     try {

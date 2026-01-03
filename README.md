@@ -24,35 +24,64 @@ This will install Puppeteer and its dependencies (including Chromium).
 ### Basic Command
 
 ```bash
-node automation.js <site> <searchTerm>
+node automation.js swiggy <searchTerm>
 node automation.js lenskart <authMode> <searchTerm>
 ```
 
 ### Examples
-
-**Lenskart - Sign in and search:**
-```bash
-node automation.js lenskart signin sunglasses
-```
-
-**Lenskart - Sign up and search:**
-```bash
-node automation.js lenskart signup sunglasses
-```
 
 **Swiggy - Search for pizza:**
 ```bash
 node automation.js swiggy pizza
 ```
 
-### NPM Scripts
-
+**Swiggy - Search with multiple words (two ways):**
 ```bash
-# Run Lenskart automation
-npm run lenskart
+node automation.js swiggy ice cream
+# OR
+node automation.js swiggy "ice cream"
+```
 
-# Run Swiggy automation
-npm run swiggy
+**Lenskart - Sign in and search:**
+```bash
+node automation.js lenskart signin sunglasses
+```
+
+**Lenskart - Sign up with multi-word search:**
+```bash
+node automation.js lenskart signup prescription glasses
+# OR
+node automation.js lenskart signup "prescription glasses"
+```
+
+## Before You Test, Make sure to update the config.js file with your own data
+
+### For swiggy
+
+```js
+    defaultLocation: 'Your Residence', // will select the first closest match
+```
+
+```js
+    // Signup/Signin data
+    signupData: {
+      phone: '1234567890',
+      name: 'Jane Doe',
+      email: 'janedoe@gmail.com',
+    },
+```
+
+### For lenskart
+
+```js
+    // Signup/Signin data
+    signupData: {
+      phone: '1234567890',
+      firstName: 'Jane',
+      lastName: 'Doe',
+      email: 'janedoe@gmail.com',
+      password: 'YourPassword123#',
+    },
 ```
 
 ## How It Works
@@ -183,10 +212,7 @@ Use different auth modes:
 node automation.js lenskart signin sunglasses
 
 # Create new account
-node automation.js lenskart signup sunglasses
-
-# Auto mode (tries signin, falls back to signup)
-node automation.js lenskart sunglasses
+node automation.js lenskart signup sunglasses # not tested perfectly due to lack of non signed up phone numbers, but the sign up does get processed as "already exists" for the phone number
 ```
 
 ### Custom Search Terms
@@ -216,16 +242,3 @@ E2EAuto/
     ├── lenskart/
     └── swiggy/
 ```
-
-## Contributing
-
-To add support for a new site:
-
-1. Add configuration to `config.js`
-2. Test with existing automation flow
-3. Adjust selectors and timing as needed
-4. Add site-specific logic if required
-
-## License
-
-MIT
