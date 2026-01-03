@@ -59,11 +59,11 @@ const config = {
 
     // Signup/Signin data
     signupData: {
-      phone: '7760809118',
-      firstName: 'Rithvik',
-      lastName: 'Allada',
-      email: 'rithvik25allada@gmail.com',
-      password: 'YourPassword123#',
+      phone: '**********',
+      firstName: 'Jane',
+      lastName: 'Doe',
+      email: 'janedoe@gmail.com',
+      password: 'Jane@123',
     },
   },
 
@@ -127,9 +127,9 @@ const config = {
 
     // Signup/Signin data
     signupData: {
-      phone: '9849397113',
-      name: 'Rithvik A',
-      email: 'rithvik25allada@gmail.com',
+      phone: "**********",
+      name: 'Jane Doe',
+      email: 'janedoe@gmail.com',
     },
   },
 };

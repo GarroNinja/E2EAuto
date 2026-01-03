@@ -4,7 +4,7 @@
 // Usage:
 //   node automation.js <site> <searchTerm>
 //   node automation.js lenskart <authMode> <searchTerm>
-//     where <authMode> is one of: signin | signup (optional; default: auto)
+//     where <authMode> is one of: signin | signup
 //   node automation.js lenskart sunglasses
 //   node automation.js swiggy pizza
 
@@ -457,8 +457,11 @@ class EcommerceAutomation {
                 }
             }
 
-            // Legacy fallback block below is for non-Lenskart flows only
-            if (this.siteName !== 'lenskart') {
+            // Swiggy login flow (skip signup, just phone + OTP)
+            if (this.siteName === 'swiggy') {
+                this.utils.log('Using login form for Swiggy', 'info');
+
+                // Fill phone in login form
                 const signupLinkClicked = false;
 
                 if (signupLinkClicked) {
@@ -857,9 +860,9 @@ class EcommerceAutomation {
                         await this.utils.screenshot('03_otp_screen');
                     }
                 }
-            }
-            } else if (this.siteName !== 'lenskart') {
-                this.utils.log('Signup link not found, using login form', 'warning');
+                } else {
+                    // Swiggy login (no signup)
+                    this.utils.log('Filling login form for Swiggy', 'info');
 
                 // Fill phone in login form (use Puppeteer typing to satisfy React validation)
                 try {
@@ -937,6 +940,7 @@ class EcommerceAutomation {
                 } catch (e) {
                     this.utils.log(`Login form typing failed: ${e.message}`, 'warning');
                 }
+                }
             }
 
             // Now wait for OTP entry (common path for all flows)
@@ -1001,23 +1005,6 @@ class EcommerceAutomation {
             }
 
             // Close modal if still open AND it's not the OTP screen anymore
-            try {
-                const shouldClose = await this.page.evaluate(() => {
-                    const container = document.querySelector('[role="dialog"], .modal, [class*="Modal"]');
-                    if (!container) return false;
-                    const txt = (container.innerText || '').toLowerCase();
-                    const hasOtp = /verify otp|didn\'t receive otp|didn’t receive otp|enter otp|one[-\s]?time/i.test(txt) ||
-                        Array.from(container.querySelectorAll('input')).some(i => i.getAttribute('maxlength') === '1');
-                    return !hasOtp;
-                });
-                if (shouldClose) {
-                    await this.utils.closeModalIfPresent([this.config.selectors.closeModal]);
-                }
-            } catch {}
-
-            this.utils.log('✅ Continuing with automation...', 'success');
-            await this.utils.screenshot('03_after_signin');
-
             return true;
         } catch (error) {
             this.utils.log(`Sign-in/signup failed: ${error.message}`, 'error');
@@ -1311,15 +1298,128 @@ class EcommerceAutomation {
                 await this.utils.wait(3000);
                 await this.utils.screenshot('05_product_page');
 
-                // Click BUY NOW button
-                this.utils.log('Clicking BUY NOW button...', 'info');
-                try {
-                    await this.page.waitForSelector('#btn-primary', { timeout: 8000 });
-                    await this.page.click('#btn-primary');
-                    this.utils.log('Clicked BUY NOW', 'success');
-                } catch (e) {
-                    this.utils.log(`Failed to click BUY NOW: ${e.message}`, 'error');
+                // Dynamically detect and click the primary action button
+                this.utils.log('Detecting primary action button...', 'info');
+                await this.utils.wait(2000);
+                
+                // Check what the primary button says
+                const buttonInfo = await this.page.evaluate(() => {
+                    const primaryBtn = document.getElementById('btn-primary');
+                    if (!primaryBtn) return { found: false };
+                    const text = (primaryBtn.innerText || primaryBtn.textContent || '').trim().toUpperCase();
+                    return {
+                        found: true,
+                        text: text,
+                        isSelectLenses: text.includes('SELECT LENSES'),
+                        isBuyNow: text.includes('BUY NOW')
+                    };
+                });
+                
+                if (!buttonInfo.found) {
+                    this.utils.log('No primary button found!', 'error');
                     return false;
+                }
+                
+                this.utils.log(`Primary button text: "${buttonInfo.text}"`, 'info');
+                
+                // Click the primary button
+                await this.page.click('#btn-primary');
+                this.utils.log(`Clicked: ${buttonInfo.text}`, 'success');
+                await this.utils.wait(2000);
+                
+                // If it was SELECT LENSES, handle customization flow
+                if (buttonInfo.isSelectLenses) {
+                    
+                    // Step 1: Check for "Select Lens Type" modal
+                    this.utils.log('Checking for lens type selection modal...', 'info');
+                    const hasLensTypeModal = await this.page.evaluate(() => {
+                        return !!document.querySelector('[role="dialog"]') && document.body.innerText.includes('Select Lens Type');
+                    });
+                    
+                    if (hasLensTypeModal) {
+                        this.utils.log('Lens type modal found, selecting first option...', 'info');
+                        // Click first lens type option
+                        const clicked = await this.page.evaluate(() => {
+                            const firstOption = document.querySelector('[data-cy="PackageItemWrapper"][role="button"]');
+                            if (firstOption) {
+                                firstOption.click();
+                                return true;
+                            }
+                            return false;
+                        });
+                        if (clicked) {
+                            this.utils.log('Selected first lens type', 'success');
+                            await this.utils.wait(2000);
+                        }
+                    }
+                    
+                    // Step 2: Check for "Choose Lens Package" modal
+                    this.utils.log('Checking for lens package selection modal...', 'info');
+                    const hasPackageModal = await this.page.evaluate(() => {
+                        return !!document.querySelector('[role="dialog"]') && document.body.innerText.includes('Choose Lens Package');
+                    });
+                    
+                    if (hasPackageModal) {
+                        this.utils.log('Lens package modal found, selecting first option...', 'info');
+                        // Click first package using Puppeteer's native click (more reliable)
+                        let clicked = false;
+                        try {
+                            // Try clicking the h3 element inside the first package
+                            const h3Element = await this.page.$('div[id="package-card-wrapper"] h3');
+                            if (h3Element) {
+                                await h3Element.click();
+                                clicked = true;
+                            }
+                        } catch (e) {
+                            this.utils.log(`h3 click failed: ${e.message}`, 'warning');
+                        }
+                        
+                        if (!clicked) {
+                            // Fallback: try clicking the role="button" element
+                            try {
+                                const buttonElement = await this.page.$('div[id="package-card-wrapper"] [role="button"]');
+                                if (buttonElement) {
+                                    await buttonElement.click();
+                                    clicked = true;
+                                }
+                            } catch (e) {
+                                this.utils.log(`role=button click failed: ${e.message}`, 'warning');
+                            }
+                        }
+                        
+                        if (!clicked) {
+                            // Last fallback: click the wrapper itself
+                            try {
+                                await this.page.click('div[id="package-card-wrapper"]');
+                                clicked = true;
+                            } catch (e) {
+                                this.utils.log(`wrapper click failed: ${e.message}`, 'warning');
+                            }
+                        }
+                        if (clicked) {
+                            this.utils.log('Selected first lens package', 'success');
+                            await this.utils.wait(2000);
+                            
+                            // Click CONTINUE button
+                            this.utils.log('Clicking CONTINUE button...', 'info');
+                            const continueClicked = await this.page.evaluate(() => {
+                                const continueBtn = document.querySelector('button[data-cy="packageBtnContinue"]');
+                                if (continueBtn) {
+                                    continueBtn.click();
+                                    return true;
+                                }
+                                return false;
+                            });
+                            if (continueClicked) {
+                                this.utils.log('Clicked CONTINUE', 'success');
+                                await this.utils.wait(2000);
+                            } else {
+                                this.utils.log('CONTINUE button not found', 'warning');
+                            }
+                        } else {
+                            this.utils.log('Failed to click lens package', 'warning');
+                        }
+                    }
                 }
 
                 // Wait for cart page
